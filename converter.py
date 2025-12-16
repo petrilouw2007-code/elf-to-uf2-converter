@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import os, struct, sys
+import os
+import struct
 
 PAGE_SIZE = 256
 BASE_ADDR = 0x10000000  # RP2040 flash start
@@ -35,15 +36,21 @@ def create_uf2(elf_bytes, uf2_path):
             uf2.write(struct.pack("<I", UF2_MAGIC_END))
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python converter.py <file.elf>")
-        sys.exit(1)
+    folder = os.getcwd()
+    elf_files = [f for f in os.listdir(folder) if f.endswith(".elf")]
 
-    elf_file = sys.argv[1]
-    uf2_file = elf_file.replace(".elf", ".uf2")
-    elf_bytes = elf_to_bin(elf_file)
-    create_uf2(elf_bytes, uf2_file)
-    print(f"Created {uf2_file}!")
+    if not elf_files:
+        print("No .elf files found in the folder.")
+        return
+
+    for elf_file in elf_files:
+        uf2_file = elf_file.replace(".elf", ".uf2")
+        print(f"Converting {elf_file} -> {uf2_file} ...")
+        elf_bytes = elf_to_bin(elf_file)
+        create_uf2(elf_bytes, uf2_file)
+        print(f"Created {uf2_file} successfully!")
+
+    print("All done!")
 
 if __name__ == "__main__":
     main()
